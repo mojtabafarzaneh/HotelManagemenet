@@ -3,8 +3,9 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
-/.idea/
-.idea
+/.idea/.idea.Hotelmanagment.Api/
+.idea/.idea.Hotelmanagment.Api/.idea
+/Hotelmanagment.Api/logs
 
 # Created by https://www.gitignore.io/api/intellij
 
