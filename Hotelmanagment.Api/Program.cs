@@ -1,4 +1,6 @@
+using Hotelmanagment.Api.Configurations;
 using Hotelmanagment.Api.Data;
+using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -30,6 +32,8 @@ builder.Services.AddDbContext<HotelManagmentDBContext>(options =>
 {
     options.UseSqlServer(connectionString);
 });
+builder.Services.AddAutoMapper(typeof(MapperConfig));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
