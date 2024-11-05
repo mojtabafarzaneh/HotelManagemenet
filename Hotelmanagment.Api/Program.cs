@@ -1,5 +1,7 @@
 using Hotelmanagment.Api.Configurations;
+using Hotelmanagment.Api.Contracts;
 using Hotelmanagment.Api.Data;
+using Hotelmanagment.Api.Repository;
 using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -26,6 +28,9 @@ builder.Services.AddCors(options =>
             cfg.AllowAnyMethod();
         });
 });
+
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
 
 var connectionString = builder.Configuration.GetConnectionString("HotelListingDBConnectionStrings");
 builder.Services.AddDbContext<HotelManagmentDBContext>(options =>

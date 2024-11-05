@@ -10,7 +10,7 @@ public class HotelManagmentDBContext: DbContext
     }
     
     public DbSet<Hotel> Hotels { get; set; }
-    public DbSet<Country> Countries { get; set; }
+    public DbSet<Country?> Countries { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
