@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hotelmanagment.Api.Data;
 using Hotelmanagment.Api.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Hotelmanagment.Api.Controllers
 {
@@ -53,6 +54,7 @@ namespace Hotelmanagment.Api.Controllers
 
         // PUT: api/Country/5
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> PutCountry(int id, UpdateCountryDTO update)
         {
             if (id != update.Id)
@@ -88,6 +90,7 @@ namespace Hotelmanagment.Api.Controllers
 
         // POST: api/Country
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<Country>> PostCountry(CountryDTO Createcountry)
         {
             var create = _mapper.Map<Country>(Createcountry);
@@ -98,6 +101,7 @@ namespace Hotelmanagment.Api.Controllers
 
         // DELETE: api/Country/5
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteCountry(int id)
         {
             var country = await _countriesRep.GetAsync(id);
