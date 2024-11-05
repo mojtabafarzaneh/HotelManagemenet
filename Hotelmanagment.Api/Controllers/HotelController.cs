@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Hotelmanagment.Api.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hotelmanagment.Api.Data;
+using Hotelmanagment.Api.DTO;
 
 namespace Hotelmanagment.Api.Controllers
 {
@@ -13,52 +16,57 @@ namespace Hotelmanagment.Api.Controllers
     [ApiController]
     public class HotelController : ControllerBase
     {
-        private readonly HotelManagmentDBContext _context;
-
-        public HotelController(HotelManagmentDBContext context)
+        private readonly IHotelsRepository _hotelRepo;
+        private readonly IMapper _mapper;
+        public HotelController(IHotelsRepository hotelRepo, IMapper mapper)
         {
-            _context = context;
+            _mapper = mapper;
+            _hotelRepo = hotelRepo;
         }
 
         // GET: api/Hotel
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Hotel>>> GetHotels()
+        public async Task<ActionResult<IEnumerable<GetHotelDTO>>> GetHotels()
         {
-            return await _context.Hotels.ToListAsync();
+            var hotels =await _hotelRepo.GetAllAsync();
+            var result = _mapper.Map<List<GetHotelDTO>>(hotels);
+            return Ok(result);
         }
 
         // GET: api/Hotel/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Hotel>> GetHotel(int id)
+        public async Task<ActionResult<GetHotelDTO>> GetHotel(int id)
         {
-            var hotel = await _context.Hotels.FindAsync(id);
+            var hotel = await _hotelRepo.GetAsync(id);
 
             if (hotel == null)
             {
                 return NotFound();
             }
+            
+            var result = _mapper.Map<GetHotelDTO>(hotel);
 
-            return hotel;
+            return result;
         }
 
         // PUT: api/Hotel/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutHotel(int id, Hotel hotel)
+        public async Task<IActionResult> PutHotel(int id, GetHotelDTO hoteldto)
         {
-            if (id != hotel.Id)
+            if (id != hoteldto.Id)
             {
                 return BadRequest();
             }
-
-            _context.Entry(hotel).State = EntityState.Modified;
+            
+            var hotel = _mapper.Map<Hotel>(hoteldto);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _hotelRepo.UpdateAsync(hotel);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!HotelExists(id))
+                if (!await HotelExists(id))
                 {
                     return NotFound();
                 }
@@ -73,10 +81,15 @@ namespace Hotelmanagment.Api.Controllers
 
         // POST: api/Hotel
         [HttpPost]
-        public async Task<ActionResult<Hotel>> PostHotel(Hotel hotel)
+        public async Task<ActionResult<Hotel>> PostHotel(CreateHotelDTO hoteldto)
         {
-            _context.Hotels.Add(hotel);
-            await _context.SaveChangesAsync();
+            var hotel = _mapper.Map<Hotel>(hoteldto);
+            await _hotelRepo.AddHotelAsync(hotel);
+
+            if (hotel.Country == null)
+            {
+                return BadRequest();
+            }
 
             return CreatedAtAction("GetHotel", new { id = hotel.Id }, hotel);
         }
@@ -85,21 +98,20 @@ namespace Hotelmanagment.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteHotel(int id)
         {
-            var hotel = await _context.Hotels.FindAsync(id);
+            var hotel = await _hotelRepo.Exists(id);
             if (hotel == null)
             {
                 return NotFound();
             }
 
-            _context.Hotels.Remove(hotel);
-            await _context.SaveChangesAsync();
+            await _hotelRepo.DeleteAsync(id);
 
             return NoContent();
         }
 
-        private bool HotelExists(int id)
+        private async Task<bool> HotelExists(int id)
         {
-            return _context.Hotels.Any(e => e.Id == id);
+            return await _hotelRepo.Exists(id);
         }
     }
 }

@@ -2,6 +2,7 @@ using Hotelmanagment.Api.Configurations;
 using Hotelmanagment.Api.Contracts;
 using Hotelmanagment.Api.Data;
 using Hotelmanagment.Api.Repository;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -18,6 +19,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddIdentityCore<ApiUser>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<HotelManagmentDBContext>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "AnyOrigin",
@@ -31,6 +36,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
+builder.Services.AddScoped<IHotelsRepository, HotelsRepository>();
 
 var connectionString = builder.Configuration.GetConnectionString("HotelListingDBConnectionStrings");
 builder.Services.AddDbContext<HotelManagmentDBContext>(options =>
